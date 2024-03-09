@@ -57,10 +57,10 @@ eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..PHFd6TGQ-z0kx0Yp.LDvf_wOPvci4AssREgpShe
 
 文件中令人混淆的地方就在於jwt跟session回調函數的存在, 和其被執行的時間點, 細節的部分下面會做解釋, 這裡的重點在於, ***Next-auth的session預設下儲存於jwt中(客戶端cookie), 再透過回調函數的方式將資料進行增添與篩選***, 其返回值即是最後我們執行useSession得到的值, 如下圖:
 
-![Untitled](Next-auth%20e4021007bb41428d8695957418f94dad/Untitled.png)
+![Image](https://drive.google.com/uc?export=view&id=12psDlVwe6swQfUYr1obpuIWPORGUPX0I)
 
 <aside>
-💡 在某些情況下, 可能會有需要自訂義encode和decode函數的需求, 可以參考[此篇](https://github.com/nextauthjs/next-auth/discussions/1039#discussion-1336033)
+💡 在某些情況下, 可能會有需要自訂義encode和decode函數的需求, 可以參考https://github.com/nextauthjs/next-auth/discussions/1039#discussion-1336033
 
 </aside>
 
@@ -68,7 +68,7 @@ eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..PHFd6TGQ-z0kx0Yp.LDvf_wOPvci4AssREgpShe
 
 為了方便說明, 先從簡單的登入頁面開始, 該路徑位於/login, 當使用者按下Sign In後, 主要會執行由Next-auth提供的***signIn函數***, 因此, 接下來的重點會在於釐清執行signIn函數後的步驟, 和哪些階段有提供hook來讓開發者撰寫自訂義程式碼, 如下圖:
 
-![Untitled](Next-auth%20e4021007bb41428d8695957418f94dad/Untitled%201.png)
+![Image-2](https://drive.google.com/uc?export=view&id=1hAEcgySsbsd54l1g8ZFD0QeWf1P4aS-Q)
 
 相關程式碼:
 
@@ -141,7 +141,7 @@ Next-auth的signIn函數底層其實做了不少事情, 這邊粗略分成兩個
 
 先附上流程圖
 
-![Untitled](Next-auth%20e4021007bb41428d8695957418f94dad/Untitled%202.png)
+![Image-3](https://drive.google.com/uc?export=view&id=1Q1NdSmPAuPSotvL7-isG89-MruLnX9Vf)
 
 ### 身分驗證
 
@@ -153,7 +153,7 @@ signIn函數在瀏覽器被執行後, 會發送Post請求到Next server, 挾帶�
 
 需要注意的是, callbacks裡signIn函數(Server端執行)返回的true或false會決定這一個request請求被resolve或reject, 倘若被reject則不會進入下一階段的session部分, 因此與API Server端的驗證相關邏輯可以寫在authorize函數中, 如果resolve的話, 我們可以在response headers這裡看到next-auth-session-token和其對應一連串的亂碼被存在cookie中, 此cookie會在接下來的請求中被帶上
 
-![Untitled](Next-auth%20e4021007bb41428d8695957418f94dad/Untitled%203.png)
+![Image-4](https://drive.google.com/uc?export=view&id=1aPfwT2l9DYKvAtToDZEcJoUKr56qZgqA)
 
 ### Session
 
@@ -161,7 +161,7 @@ signIn函數在瀏覽器被執行後, 會發送Post請求到Next server, 挾帶�
 
 再撰寫回調函數jwt的邏輯時, 必須要特別注意, 這個函數會被多次呼叫, 因此只有當其在回調函數signIn後呼叫才會有除了token以外的參數, 如文件所述:
 
-![Untitled](Next-auth%20e4021007bb41428d8695957418f94dad/Untitled%204.png)
+![Image-5](https://drive.google.com/uc?export=view&id=1O5Uv7NFBBrp_OpACW5tl_64ZQiiEuiP9)
 
 ### 程式碼備註
 
@@ -248,10 +248,8 @@ export { default } from "next-auth/middleware"
 export const config = { matcher: ["/dashboard/:path*"] }
 ```
 
-<aside>
 💡 matcher要使用regular expression, 可以在[這裡](https://regex101.com/r/nAcnSP/2)做測試
 
-</aside>
 
 ## getServerSession
 
@@ -284,10 +282,7 @@ export async function getServerSideProps ({ req, res }) {
   export default Dashboard;
 ```
 
-<aside>
 💡 需要特別注意, props有可能會拿不到session, 原因在於session有可能無法被serialize, 必要時可以寫相關邏輯來處理此部分, 只回傳需要用到的屬性, 可以參考[這裡](https://stackoverflow.com/questions/75622569/next-auth-session-returning-undefined-from-getserversideprops-nextjs-13-2-1)
-
-</aside>
 
 ## useSession(不推薦)
 
